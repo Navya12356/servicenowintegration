@@ -1,0 +1,41 @@
+script include:
+
+var ATQinfo = Class.create();
+ATQinfo.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+    populateUser: function() {
+        var uid = this.getParameter('sysparm_user_name');
+        var gr = new GlideRecord('sys_user');
+        gr.addQuery('sys_id', uid);
+        gr.query();
+        if (gr.next()) {
+            return gr.getValue('email');
+        }
+
+    },
+    type: 'ATQinfo'
+});
+
+
+client script:
+
+function onChange(control, oldValue, newValue, isLoading, isTemplate) {
+    if (isLoading || newValue === '') {
+        return;
+    }
+    var getEmailAddr = new GlideAjax('ATQinfo'); // script include name
+    getEmailAddr.addParam('sysparm_name', 'populateUser'); //function/method name
+    //Pass the Requested for sys_id
+    getEmailAddr.addParam('sysparm_user_name', g_form.getValue('caller_id')); //change variable name her
+    //getEmailAddr.getXML(userInfo);
+    getEmailAddr.getXMLAnswer(userInfo);
+
+    //function userInfo(response) {
+    function userInfo(answer) {
+        alert(answer);
+        g_form.setValue('u_email', answer);
+        //var answer = response.responseXML.documentElement.getAttribute('answer');
+        //g_form.clearValue('email');
+        //g_form.setValue('email', answer);
+
+    }
+}
